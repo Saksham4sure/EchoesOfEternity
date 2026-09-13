@@ -7,6 +7,8 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef } from 'react';
+import SplitTextReveal from '../components/SplitTextReveal';
+import ImageReveal from '../components/ImageReveal';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -48,18 +50,45 @@ const BeforeLanding = () => {
   }, { scope: container }); 
 
   return (
-    <div ref={container} className='bg-black'>
+    <div ref={container} className='bg-black relative'>
       <div className='flex flex-col md:flex-row md:items-end py-10 gap-5 md:gap-10 px-4 md:pl-28'>
-        <h1 className='text-8xl text-[#eeeeee] md:w-90 libre'><span className='italic'>Echoes</span> of Eternity</h1>
-        <p className='md:text-xl pb-5 text-[#aaaaaa]'>Journey Through Civilizations Lost to Time</p>
+        <SplitTextReveal 
+          as="h1" 
+          splitType="chars" 
+          stagger={0.04} 
+          className='text-8xl text-[#eeeeee] md:w-90 libre'
+        >
+          <span className='italic'>Echoes</span> of Eternity
+        </SplitTextReveal>
+        
+        <SplitTextReveal 
+          as="p" 
+          splitType="words" 
+          stagger={0.1} 
+          delay={0.6}
+          className='md:text-xl pb-5 text-[#aaaaaa]'
+        >
+          Journey Through Civilizations Lost to Time
+        </SplitTextReveal>
       </div>
       <div className='h-[210vh] md:h-[200vh] relative'>
-        <div ref={img1} className='h-90 w-60 md:h-120 md:w-90 scale-70 absolute left-1/2 -translate-x-1/2 top-[15%] md:top-0 opacity-70'><img className='h-full w-full object-cover' src={home1} alt="Eternity 1" /></div>
-        <div ref={img2} className='h-90 w-60 md:h-120 md:w-90 absolute left-[6%] md:left-[10%] top-0 md:top-[10%] z-10'><img className='h-full w-full object-cover' src={home2} alt="Eternity 2" /></div>
-        <div ref={img3} className='h-90 w-60 md:h-120 md:w-90 absolute right-[2%] md:right-[10%] top-[38%] md:top-[16%] z-10'><img className='h-full w-full object-cover' src={home3} alt="Eternity 3" /></div>
-        <div ref={img4} className='h-90 w-60 md:h-120 md:w-90 absolute right-[34%] md:right-[20%] top-[60%] md:top-[58%] scale-95 z-10'><img className='h-full w-full object-cover' src={home4} alt="Eternity 4" /></div>
-        <div ref={img5} className='h-90 w-60 md:h-120 md:w-90 absolute left-[34%] md:left-[16%] bottom-[0%] scale-90'><img className='h-full w-full object-cover' src={home5} alt="Eternity 5" /></div>
+        <div ref={img1} className='h-90 w-60 md:h-120 md:w-90 scale-70 absolute left-1/2 -translate-x-1/2 top-[15%] md:top-0 opacity-70'>
+          <ImageReveal src={home1} alt="Eternity 1" direction="bottom" delay={0.1} className="w-full h-full" />
+        </div>
+        <div ref={img2} className='h-90 w-60 md:h-120 md:w-90 absolute left-[6%] md:left-[10%] top-0 md:top-[10%] z-10'>
+          <ImageReveal src={home2} alt="Eternity 2" direction="left" delay={0.2} className="w-full h-full" />
+        </div>
+        <div ref={img3} className='h-90 w-60 md:h-120 md:w-90 absolute right-[2%] md:right-[10%] top-[38%] md:top-[16%] z-10'>
+          <ImageReveal src={home3} alt="Eternity 3" direction="right" delay={0.3} className="w-full h-full" />
+        </div>
+        <div ref={img4} className='h-90 w-60 md:h-120 md:w-90 absolute right-[34%] md:right-[20%] top-[60%] md:top-[58%] scale-95 z-10'>
+          <ImageReveal src={home4} alt="Eternity 4" direction="top" delay={0.4} className="w-full h-full" />
+        </div>
+        <div ref={img5} className='h-90 w-60 md:h-120 md:w-90 absolute left-[34%] md:left-[16%] bottom-[0%] scale-90'>
+          <ImageReveal src={home5} alt="Eternity 5" direction="bottom" delay={0.5} className="w-full h-full" />
+        </div>
       </div>
+      <div className="absolute bottom-0 w-full h-32 bg-gradient-to-t from-[#eeeeee] to-transparent opacity-20 pointer-events-none z-20"></div>
     </div>
   )
 }

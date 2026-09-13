@@ -22,3 +22,34 @@ html, body{
   font-family: "manrope";
   src: url("./assets/fonts/Manrope.ttf") format("truetype");
 }
+
+/* Gradients */
+.gradient-light {
+  background: linear-gradient(135deg, #d4c5a9 0%, #eeeeee 50%, #c9b896 100%);
+}
+
+.gradient-dark {
+  background: linear-gradient(135deg, #1a1a2e 0%, #000000 50%, #16213e 100%);
+}
+
+.gradient-accent {
+  background: linear-gradient(90deg, #8b7355 0%, #c9a96e 50%, #8b7355 100%);
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, #8b7355 0%, #c9a96e 50%, #8b7355 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* SplitText line mask — padding prevents descender clipping */
+.overflow-hidden {
+  overflow: hidden;
+  padding-bottom: 0.1em;
+}
+
+/* Performance hint for animated elements */
+.will-change-transform {
+  will-change: transform;
+}
