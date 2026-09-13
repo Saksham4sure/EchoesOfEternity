@@ -19,54 +19,31 @@ const BeforeLanding = () => {
   const img5 = useRef(null);
 
   useGSAP(() => {
-    gsap.to(img1.current, {
-      yPercent: 30,
-      scrollTrigger: {
-        trigger: img1.current,
-        scrub: 1,
-        start: "top center",
-        end: "bottom top",
-      }
-    });
+    // Each image gets its own parallax speed + subtle secondary motion
+    const parallaxItems = [
+      { ref: img1, yPercent: 40,  scale: 1.05, opacity: 0.4 },
+      { ref: img2, yPercent: -50, scale: 1.08, opacity: 1 },
+      { ref: img3, yPercent: -35, scale: 1.06, opacity: 1 },
+      { ref: img4, yPercent: -80, scale: 1.04, opacity: 1 },
+      { ref: img5, yPercent: -60, scale: 1.07, opacity: 0.85 },
+    ];
 
-    gsap.to(img2.current, {
-      y: -50,
-      scrollTrigger: {
-        trigger: img2.current,
-        scrub: 1,
-        start: "top center",
-        end: "bottom top",
-      }
-    });
-
-    gsap.to(img3.current, {
-      yPercent: -30,
-      scrollTrigger: {
-        trigger: img3.current,
-        scrub: 1,
-        start: "top center",
-        end: "bottom top",
-      }
-    });
-
-    gsap.to(img4.current, {
-      yPercent: -60,
-      scrollTrigger: {
-        trigger: img4.current,
-        scrub: 1,
-        start: "top bottom",
-        end: "bottom top",
-      }
-    });
-
-    gsap.to(img5.current, {
-      yPercent: -50,
-      scrollTrigger: {
-        trigger: img5.current,
-        scrub: 1,
-        start: "top bottom",
-        end: "bottom top",
-      }
+    parallaxItems.forEach(({ ref, yPercent, scale, opacity }) => {
+      gsap.fromTo(ref.current,
+        { yPercent: 0, scale: 1 },
+        {
+          yPercent,
+          scale,
+          opacity,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ref.current,
+            scrub: 1.2,
+            start: "top bottom",
+            end: "bottom top",
+          }
+        }
+      );
     });
   }, { scope: container }); 
 
