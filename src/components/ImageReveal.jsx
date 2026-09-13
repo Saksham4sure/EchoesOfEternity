@@ -9,82 +9,78 @@ const ImageReveal = ({
   className = '', 
   imgClassName = '',
   delay = 0,
+  maskColor = '#000000',
 }) => {
   const containerRef = useRef(null);
   const imageRef = useRef(null);
+  const overlayRef = useRef(null);
 
   useGSAP(() => {
-    if (!containerRef.current || !imageRef.current) return;
+    const container = containerRef.current;
+    const image = imageRef.current;
+    const overlay = overlayRef.current;
+    if (!container || !image || !overlay) return;
 
-    // clipPath inset(top right bottom left)
-    // Start fully clipped (hidden), animate to fully visible
-    let clipFrom = '';
-    
+    // Image starts zoomed in
+    gsap.set(image, { scale: 1.3 });
+
+    // Overlay transform direction
+    let transformTo = {};
     switch (direction) {
-      case 'left':
-        // Wipe from left → right: start fully hidden on right side
-        clipFrom = 'inset(0 100% 0 0)';
-        break;
-      case 'right':
-        // Wipe from right → left: start fully hidden on left side
-        clipFrom = 'inset(0 0 0 100%)';
-        break;
-      case 'top':
-        // Wipe from top → bottom: start fully hidden on bottom
-        clipFrom = 'inset(0 0 100% 0)';
-        break;
-      case 'bottom':
-        // Wipe from bottom → top: start fully hidden on top
-        clipFrom = 'inset(100% 0 0 0)';
-        break;
-      default:
-        clipFrom = 'inset(0 100% 0 0)';
+      case 'left':   transformTo = { xPercent: -105 }; break;
+      case 'right':  transformTo = { xPercent: 105 };  break;
+      case 'top':    transformTo = { yPercent: -105 }; break;
+      case 'bottom': transformTo = { yPercent: 105 };  break;
+      default:       transformTo = { xPercent: -105 };
     }
-
-    const clipTo = 'inset(0 0% 0 0%)';
-
-    // Container starts fully clipped — image is 100% invisible
-    gsap.set(containerRef.current, { clipPath: clipFrom });
-    // Image starts zoomed in for the parallax zoom-out effect
-    gsap.set(imageRef.current, { scale: 1.3 });
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const tl = gsap.timeline({ delay });
-          
-          // Clip wipes open to reveal
-          tl.to(containerRef.current, {
-            clipPath: clipTo,
+
+          // Slide the overlay away
+          tl.to(overlay, {
+            ...transformTo,
             duration: 1.6,
-            ease: 'power4.inOut'
+            ease: 'power4.inOut',
           }, 0)
-          // Image zooms out from 1.3 → 1 as the mask opens
-          .to(imageRef.current, {
+          // Zoom the image down
+          .to(image, {
             scale: 1,
             duration: 2.2,
-            ease: 'power3.out'
-          }, 0.1);
+            ease: 'power3.out',
+          }, 0.2);
 
           observer.unobserve(entry.target);
         }
       });
-    }, {
-      threshold: 0.05
-    });
+    }, { threshold: 0.05 });
 
-    observer.observe(containerRef.current);
+    observer.observe(container);
 
     return () => observer.disconnect();
   }, { scope: containerRef });
 
   return (
-    <div ref={containerRef} className={`overflow-hidden ${className}`}>
-      <img 
-        ref={imageRef} 
-        src={src} 
-        alt={alt} 
-        className={`w-full h-full object-cover ${imgClassName}`} 
+    <div ref={containerRef} className={`relative overflow-hidden ${className}`}>
+      <img
+        ref={imageRef}
+        src={src}
+        alt={alt}
+        className={`w-full h-full object-cover ${imgClassName}`}
+      />
+      {/* Solid overlay — slides away to reveal image */}
+      <div
+        ref={overlayRef}
+        className="absolute z-10"
+        style={{
+          top: '-5px',
+          left: '-5px',
+          right: '-5px',
+          bottom: '-5px',
+          backgroundColor: maskColor,
+        }}
       />
     </div>
   );
