@@ -31,7 +31,7 @@ const SplitTextReveal = ({
 
     const split = new SplitText(containerRef.current, { 
       type: splitTypeStr,
-      linesClass: 'overflow-hidden'
+      linesClass: 'split-line-mask'
     });
 
     const targets = splitType === 'chars' ? split.chars : splitType === 'words' ? split.words : split.lines;

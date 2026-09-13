@@ -4,6 +4,8 @@ import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useRef, useState } from "react";
 import BeforeLanding from './pages/BeforeLanding';
+import Footer from './pages/Footer';
+import CustomCursor from './components/CustomCursor';
 
 const App = () => {
   const horizon = useRef(null);
@@ -29,10 +31,12 @@ const App = () => {
 
   return (
     <>
+      <CustomCursor />
       <BeforeLanding />
       <div ref={horizon} className='flex h-screen'>
         <Landing />
       </div>
+      <Footer />
     </>
   )
 }

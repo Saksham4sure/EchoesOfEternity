@@ -44,7 +44,7 @@ html, body{
 }
 
 /* SplitText line mask — padding prevents descender clipping */
-.overflow-hidden {
+.split-line-mask {
   overflow: hidden;
   padding-bottom: 0.1em;
 }
@@ -52,4 +52,49 @@ html, body{
 /* Performance hint for animated elements */
 .will-change-transform {
   will-change: transform;
+}
+
+/* ===== Custom Cursor ===== */
+
+/* Hide default cursor on desktop */
+@media (hover: hover) and (pointer: fine) {
+  * {
+    cursor: none !important;
+  }
+}
+
+/* Small inverted dot — follows mouse tightly */
+.custom-cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffffff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  z-index: 99999;
+}
+
+/* Large blurry follower — trails behind with smooth delay */
+.custom-cursor-follower {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,169,110,0.25) 0%, rgba(201,169,110,0.05) 60%, transparent 70%);
+  pointer-events: none;
+  z-index: 99998;
+  filter: blur(2px);
+}
+
+/* Hide custom cursor on touch devices */
+@media (hover: none) {
+  .custom-cursor-dot,
+  .custom-cursor-follower {
+    display: none !important;
+  }
 }

@@ -9,68 +9,68 @@ const ImageReveal = ({
   className = '', 
   imgClassName = '',
   delay = 0,
-  maskColor = 'dark'
 }) => {
   const containerRef = useRef(null);
   const imageRef = useRef(null);
-  const maskRef = useRef(null);
 
   useGSAP(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !imageRef.current) return;
 
-    // Set initial states — image starts scaled up and invisible
-    gsap.set(imageRef.current, { scale: 1.2, opacity: 0 });
+    // clipPath inset(top right bottom left)
+    // Start fully clipped (hidden), animate to fully visible
+    let clipFrom = '';
     
-    let maskInitial = '';
-    let maskFinal = '';
-
     switch (direction) {
       case 'left':
-        maskInitial = 'inset(0 0 0 0)';
-        maskFinal = 'inset(0 100% 0 0)';
+        // Wipe from left → right: start fully hidden on right side
+        clipFrom = 'inset(0 100% 0 0)';
         break;
       case 'right':
-        maskInitial = 'inset(0 0 0 0)';
-        maskFinal = 'inset(0 0 0 100%)';
+        // Wipe from right → left: start fully hidden on left side
+        clipFrom = 'inset(0 0 0 100%)';
         break;
       case 'top':
-        maskInitial = 'inset(0 0 0 0)';
-        maskFinal = 'inset(0 0 100% 0)';
+        // Wipe from top → bottom: start fully hidden on bottom
+        clipFrom = 'inset(0 0 100% 0)';
         break;
       case 'bottom':
-        maskInitial = 'inset(0 0 0 0)';
-        maskFinal = 'inset(100% 0 0 0)';
+        // Wipe from bottom → top: start fully hidden on top
+        clipFrom = 'inset(100% 0 0 0)';
         break;
       default:
-        maskInitial = 'inset(0 0 0 0)';
-        maskFinal = 'inset(0 100% 0 0)';
+        clipFrom = 'inset(0 100% 0 0)';
     }
 
-    gsap.set(maskRef.current, { clipPath: maskInitial });
+    const clipTo = 'inset(0 0% 0 0%)';
+
+    // Container starts fully clipped — image is 100% invisible
+    gsap.set(containerRef.current, { clipPath: clipFrom });
+    // Image starts zoomed in for the parallax zoom-out effect
+    gsap.set(imageRef.current, { scale: 1.3 });
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          const tl = gsap.timeline({ delay: delay });
+          const tl = gsap.timeline({ delay });
           
-          // Show the image immediately when animation starts
-          tl.set(imageRef.current, { opacity: 1 }, 0)
-          .to(maskRef.current, {
-            clipPath: maskFinal,
-            duration: 1.5,
+          // Clip wipes open to reveal
+          tl.to(containerRef.current, {
+            clipPath: clipTo,
+            duration: 1.6,
             ease: 'power4.inOut'
           }, 0)
+          // Image zooms out from 1.3 → 1 as the mask opens
           .to(imageRef.current, {
             scale: 1,
-            duration: 2,
-            ease: 'power4.inOut'
-          }, 0);
+            duration: 2.2,
+            ease: 'power3.out'
+          }, 0.1);
 
           observer.unobserve(entry.target);
         }
       });
     }, {
-      threshold: 0.1
+      threshold: 0.05
     });
 
     observer.observe(containerRef.current);
@@ -78,19 +78,13 @@ const ImageReveal = ({
     return () => observer.disconnect();
   }, { scope: containerRef });
 
-  const maskBg = maskColor === 'light' ? 'bg-[#eeeeee]' : 'bg-black';
-
   return (
-    <div ref={containerRef} className={`relative overflow-hidden ${className}`}>
+    <div ref={containerRef} className={`overflow-hidden ${className}`}>
       <img 
         ref={imageRef} 
         src={src} 
         alt={alt} 
         className={`w-full h-full object-cover ${imgClassName}`} 
-      />
-      <div 
-        ref={maskRef} 
-        className={`absolute inset-0 ${maskBg} z-10`}
       />
     </div>
   );

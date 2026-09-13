@@ -11,7 +11,6 @@ const ImageOne = ({style}) => {
         <ImageReveal 
           src={dynasty} 
           direction="right" 
-          maskColor="light"
           className='w-full h-full' 
         />
       </div>
@@ -20,7 +19,6 @@ const ImageOne = ({style}) => {
           src={small2} 
           direction="left" 
           delay={0.4}
-          maskColor="light"
           className='w-full h-full' 
         />
       </div>
