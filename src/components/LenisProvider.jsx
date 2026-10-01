@@ -30,13 +30,14 @@ export default function SmoothScroll({ children }) {
       root 
       ref={lenisRef} 
       options={{ 
-        lerp: 0.1,
+        lerp: 0.08,
         duration: 1.2,
         
         // --- MOBILE SMOOTHING ACTIVATED HERE ---
         syncTouch: true,       // Mimics desktop momentum scrolling on touch screens
-        syncTouchLerp: 0.075,   // Easing intensity specifically for mobile touch
-        touchMultiplier: 1.2   // Makes mobile scrolling feel slightly more responsive
+        syncTouchLerp: 0.06,   // Slightly heavier easing hides frame drops on mobile
+        touchMultiplier: 1.2,  // Makes mobile scrolling feel slightly more responsive
+        autoResize: true,      // Auto-recalculate on viewport resize
       }}
     >
       {children}

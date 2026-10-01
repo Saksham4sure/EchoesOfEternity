@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { useLenis } from 'lenis/react';
 
 // ── Import every image used across the site ──
 import home1 from '../assets/images/home1.jpg';
@@ -22,7 +21,7 @@ const ALL_IMAGES = [
 ];
 
 const MIN_DISPLAY_MS = 2000;
-const FALLBACK_TIMEOUT_MS = 10000;
+const FALLBACK_TIMEOUT_MS = 12000;
 
 const Preloader = ({ onComplete }) => {
   const preloaderRef = useRef(null);
@@ -40,13 +39,20 @@ const Preloader = ({ onComplete }) => {
   const [readyToExit, setReadyToExit] = useState(false);
   const minTimeReached = useRef(false);
   const assetsLoaded = useRef(false);
+  const introTl = useRef(null);
+  const exitTl = useRef(null);
 
-  const lenis = useLenis();
-
-  // ── Stop Lenis during preload ──
+  // ── Lock scroll immediately on mount ──
   useEffect(() => {
-    if (lenis) lenis.stop();
-  }, [lenis]);
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    return () => {
+      // Safety net: ensure scroll is restored if component unmounts unexpectedly
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
 
   // ── Check if both conditions met ──
   const tryExit = useCallback(() => {
@@ -68,16 +74,14 @@ const Preloader = ({ onComplete }) => {
   useEffect(() => {
     let loaded = 0;
     const total = ALL_IMAGES.length;
-
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
+    const tweens = [];
 
     const onImageDone = () => {
       loaded++;
       const progress = loaded / total;
 
       // Animate counter number
-      gsap.to(counterObj.current, {
+      const t1 = gsap.to(counterObj.current, {
         value: Math.round(progress * 100),
         duration: 0.5,
         ease: 'power1.out',
@@ -87,13 +91,17 @@ const Preloader = ({ onComplete }) => {
           }
         },
       });
+      tweens.push(t1);
 
       // Animate progress bar width
-      gsap.to(progressRef.current, {
-        scaleX: progress,
-        duration: 0.7,
-        ease: 'power2.out',
-      });
+      if (progressRef.current) {
+        const t2 = gsap.to(progressRef.current, {
+          scaleX: progress,
+          duration: 0.7,
+          ease: 'power2.out',
+        });
+        tweens.push(t2);
+      }
 
       if (loaded >= total) {
         assetsLoaded.current = true;
@@ -117,47 +125,46 @@ const Preloader = ({ onComplete }) => {
       tryExit();
     }, FALLBACK_TIMEOUT_MS);
 
-    return () => clearTimeout(fallback);
+    return () => {
+      clearTimeout(fallback);
+      tweens.forEach(t => t.kill());
+    };
   }, [tryExit]);
 
   // ── Intro animation ──
   useEffect(() => {
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    introTl.current = tl;
 
     // Decorative lines grow from center
-    tl.from([lineLeftRef.current, lineRightRef.current], {
-      scaleX: 0,
-      duration: 0.8,
-    }, 0);
+    tl.fromTo([lineLeftRef.current, lineRightRef.current],
+      { scaleX: 0 },
+      { scaleX: 1, duration: 0.8 },
+    0);
 
     // Title fades up
-    tl.from(titleRef.current, {
-      y: 25,
-      opacity: 0,
-      duration: 1,
-    }, 0.2);
+    tl.fromTo(titleRef.current,
+      { y: 25, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1 },
+    0.2);
 
     // Counter scales in
-    tl.from(counterRef.current, {
-      y: 50,
-      opacity: 0,
-      scale: 0.8,
-      duration: 0.9,
-    }, 0.4);
+    tl.fromTo(counterRef.current,
+      { y: 50, opacity: 0, scale: 0.8 },
+      { y: 0, opacity: 1, scale: 1, duration: 0.9 },
+    0.4);
 
     // Percent sign
-    tl.from(percentRef.current, {
-      opacity: 0,
-      x: -10,
-      duration: 0.5,
-    }, 0.7);
+    tl.fromTo(percentRef.current,
+      { opacity: 0, x: -10 },
+      { opacity: 1, x: 0, duration: 0.5 },
+    0.7);
 
     // Subtitle
-    tl.from(subtitleRef.current, {
-      opacity: 0,
-      y: 10,
-      duration: 0.6,
-    }, 0.8);
+    tl.fromTo(subtitleRef.current,
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.6 },
+    0.8);
   }, []);
 
   // ── Exit animation ──
@@ -166,19 +173,23 @@ const Preloader = ({ onComplete }) => {
 
     const tl = gsap.timeline({
       onComplete: () => {
-        // Cleanup
+        // Restore scroll
         document.body.style.overflow = '';
         document.documentElement.style.overflow = '';
-        if (preloaderRef.current) preloaderRef.current.style.display = 'none';
 
-        // Restart smooth scroll
-        if (lenis) lenis.start();
+        // Remove preloader from DOM flow
+        if (preloaderRef.current) {
+          preloaderRef.current.style.display = 'none';
+        }
 
-        // Recalculate all scroll positions
-        ScrollTrigger.refresh();
-        onComplete?.();
+        // Recalculate all scroll positions after layout settles
+        requestAnimationFrame(() => {
+          ScrollTrigger.refresh(true);
+          onComplete?.();
+        });
       },
     });
+    exitTl.current = tl;
 
     // 1. Subtitle fades out
     tl.to(subtitleRef.current, {
@@ -240,7 +251,9 @@ const Preloader = ({ onComplete }) => {
       duration: 1.2,
       ease: 'power4.inOut',
     }, '<'); // same time as left panel
-  }, [readyToExit, lenis, onComplete]);
+
+    return () => tl.kill();
+  }, [readyToExit, onComplete]);
 
   return (
     <div ref={preloaderRef} className="preloader" aria-hidden="true">

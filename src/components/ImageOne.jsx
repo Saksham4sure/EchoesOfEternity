@@ -1,6 +1,4 @@
-import { useRef } from 'react';
 import dynasty from '../assets/images/lostdynasty.jpeg';
-import small1 from '../assets/images/lostdynasty2.jpeg';
 import small2 from '../assets/images/lostdynasty2.jpg';
 import ImageReveal from './ImageReveal';
 

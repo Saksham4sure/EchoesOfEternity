@@ -70,6 +70,8 @@ const ImageReveal = ({
         ref={imageRef}
         src={src}
         alt={alt}
+        loading="lazy"
+        decoding="async"
         className={`w-full h-full object-cover ${imgClassName}`}
       />
       {/* Solid overlay — slides away to reveal image */}

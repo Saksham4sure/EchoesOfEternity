@@ -31,7 +31,13 @@ const BeforeLanding = () => {
     ];
 
     parallaxItems.forEach(({ ref, yPercent, scale, opacity }) => {
-      gsap.fromTo(ref.current,
+      const el = ref.current;
+      if (!el) return;
+
+      // Promote to GPU layer ahead of time
+      gsap.set(el, { willChange: 'transform, opacity' });
+
+      gsap.fromTo(el,
         { yPercent: 0, scale: 1 },
         {
           yPercent,
@@ -40,8 +46,8 @@ const BeforeLanding = () => {
           ease: "none",
           force3D: true,
           scrollTrigger: {
-            trigger: ref.current,
-            scrub: 1.2,
+            trigger: el,
+            scrub: 0.8,
             start: "top bottom",
             end: "bottom top",
           }
@@ -73,7 +79,7 @@ const BeforeLanding = () => {
         </SplitTextReveal>
       </div>
       <div className='h-[210vh] md:h-[200vh] relative'>
-        <div ref={img1} className='h-90 w-60 md:h-120 md:w-90 scale-70 absolute left-1/2 -translate-x-1/2 top-[15%] md:top-0 opacity-70'>
+        <div ref={img1} className='h-90 w-60 md:h-120 md:w-90 scale-70 absolute left-1/2 -translate-x-1/2 top-[15%] md:top-0 opacity-70 will-change-transform'>
           <ImageReveal src={home1} alt="Eternity 1" direction="bottom" delay={0.1} className="w-full h-full" />
         </div>
         <div ref={img2} className='h-90 w-60 md:h-120 md:w-90 absolute left-[6%] md:left-[10%] top-0 md:top-[10%] z-10'>

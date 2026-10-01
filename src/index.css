@@ -52,6 +52,8 @@ html, body{
 /* Performance hint for animated elements */
 .will-change-transform {
   will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 /* ===== Custom Cursor ===== */
@@ -111,6 +113,8 @@ html, body{
   inset: 0;
   z-index: 9999;
   pointer-events: all;
+  touch-action: none;
+  -webkit-overflow-scrolling: none;
 }
 
 /* Split panels — solid background that parts like curtains */
