@@ -44,12 +44,14 @@ const ImageReveal = ({
             ...transformTo,
             duration: 1.6,
             ease: 'power4.inOut',
+            force3D: true,
           }, 0)
           // Zoom the image down
           .to(image, {
             scale: 1,
             duration: 2.2,
             ease: 'power3.out',
+            force3D: true,
           }, 0.2);
 
           observer.unobserve(entry.target);

@@ -38,6 +38,7 @@ const BeforeLanding = () => {
           scale,
           opacity,
           ease: "none",
+          force3D: true,
           scrollTrigger: {
             trigger: ref.current,
             scrub: 1.2,

@@ -75,9 +75,13 @@ html, body{
   mix-blend-mode: difference;
   pointer-events: none;
   z-index: 99999;
+  will-change: transform;
 }
 
 /* Large blurry follower — trails behind with smooth delay */
+/* NOTE: blur(2px) removed — the radial gradient already provides
+   a soft edge, and CSS filter forces expensive re-rasterization
+   on every frame when the element is continuously animated. */
 .custom-cursor-follower {
   position: fixed;
   top: 0;
@@ -85,10 +89,10 @@ html, body{
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(201,169,110,0.25) 0%, rgba(201,169,110,0.05) 60%, transparent 70%);
+  background: radial-gradient(circle, rgba(201,169,110,0.3) 0%, rgba(201,169,110,0.06) 55%, transparent 70%);
   pointer-events: none;
   z-index: 99998;
-  filter: blur(2px);
+  will-change: transform;
 }
 
 /* Hide custom cursor on touch devices */
@@ -97,4 +101,136 @@ html, body{
   .custom-cursor-follower {
     display: none !important;
   }
+}
+
+
+/* ===== Preloader ===== */
+
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: all;
+}
+
+/* Split panels — solid background that parts like curtains */
+.preloader-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  background: #0a0a0a;
+  will-change: transform;
+}
+
+.preloader-panel--left {
+  left: 0;
+}
+
+.preloader-panel--right {
+  right: 0;
+}
+
+/* Content sits above panels */
+.preloader-content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Site name — small tracked letters near top */
+.preloader-title {
+  position: absolute;
+  top: 12%;
+  font-size: 11px;
+  letter-spacing: 0.45em;
+  color: #555555;
+  font-family: "manrope", sans-serif;
+}
+
+/* Decorative gold lines flanking the counter area */
+.preloader-lines {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(400px, 70vw);
+  height: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.preloader-line {
+  display: block;
+  width: 50%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 169, 110, 0.15));
+}
+
+.preloader-line--left {
+  transform-origin: right center;
+  background: linear-gradient(90deg, transparent, rgba(201, 169, 110, 0.15));
+}
+
+.preloader-line--right {
+  transform-origin: left center;
+  background: linear-gradient(270deg, transparent, rgba(201, 169, 110, 0.15));
+}
+
+/* Large serif counter */
+.preloader-counter-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  position: relative;
+  z-index: 2;
+}
+
+.preloader-counter {
+  font-size: clamp(72px, 14vw, 160px);
+  color: #eeeeee;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.preloader-percent {
+  font-size: clamp(20px, 4vw, 40px);
+  color: #666666;
+  line-height: 1;
+}
+
+/* Progress bar */
+.preloader-progress-track {
+  margin-top: 1.5rem;
+  width: min(260px, 55vw);
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.preloader-progress-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #8b7355, #c9a96e, #8b7355);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+
+/* Subtitle */
+.preloader-subtitle {
+  position: absolute;
+  bottom: 10%;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #444444;
+  font-family: "manrope", sans-serif;
 }

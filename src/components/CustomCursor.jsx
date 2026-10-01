@@ -4,7 +4,6 @@ import gsap from 'gsap';
 const CustomCursor = () => {
   const cursorRef = useRef(null);
   const followerRef = useRef(null);
-  const pos = useRef({ x: 0, y: 0 });
   const isVisible = useRef(false);
 
   useEffect(() => {
@@ -15,32 +14,25 @@ const CustomCursor = () => {
     // Hide both initially
     gsap.set([cursor, follower], { opacity: 0, xPercent: -50, yPercent: -50 });
 
-    const onMouseMove = (e) => {
-      pos.current.x = e.clientX;
-      pos.current.y = e.clientY;
+    // ── PERF FIX: gsap.quickTo() creates a SINGLE reusable tween per property.
+    // The old code called gsap.to() on every mousemove, creating ~120 new
+    // tweens/sec that had to be garbage-collected. quickTo is dramatically cheaper.
+    const xDot = gsap.quickTo(cursor, 'x', { duration: 0.15, ease: 'power2.out' });
+    const yDot = gsap.quickTo(cursor, 'y', { duration: 0.15, ease: 'power2.out' });
+    const xFollower = gsap.quickTo(follower, 'x', { duration: 0.6, ease: 'power3.out' });
+    const yFollower = gsap.quickTo(follower, 'y', { duration: 0.6, ease: 'power3.out' });
 
+    const onMouseMove = (e) => {
       if (!isVisible.current) {
         isVisible.current = true;
         gsap.to([cursor, follower], { opacity: 1, duration: 0.3 });
       }
 
-      // Small dot follows instantly
-      gsap.to(cursor, {
-        x: e.clientX,
-        y: e.clientY,
-        duration: 0.15,
-        ease: 'power2.out',
-        overwrite: 'auto',
-      });
-
-      // Blurry follower trails behind with smooth lerp
-      gsap.to(follower, {
-        x: e.clientX,
-        y: e.clientY,
-        duration: 0.8,
-        ease: 'power3.out',
-        overwrite: 'auto',
-      });
+      // Just update the target value — no new tween allocation
+      xDot(e.clientX);
+      yDot(e.clientY);
+      xFollower(e.clientX);
+      yFollower(e.clientY);
     };
 
     const onMouseLeave = () => {
@@ -64,7 +56,8 @@ const CustomCursor = () => {
       gsap.to(follower, { scale: 1, duration: 0.4, ease: 'power2.out' });
     };
 
-    window.addEventListener('mousemove', onMouseMove);
+    // { passive: true } lets the browser optimize — we don't call preventDefault
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
     document.addEventListener('mouseleave', onMouseLeave);
     document.addEventListener('mouseenter', onMouseEnter);
 
